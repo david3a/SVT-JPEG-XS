@@ -49,8 +49,8 @@ else
     for pid in "${pid_array[@]}"; do
         wait $pid
         ret=$?
-        echo "Job $index/$nproc return: $ret"
         if [[ $ret -ne 0 ]]; then
+            echo "Job $index/$nproc return: $ret"
             error_list="$error_list\nJob $index/$nproc return ERROR: $ret"
             if [[ $error -eq 0 ]]; then
                 error=$ret
@@ -60,13 +60,12 @@ else
         index=$((index+1))
     done
 
-    #Print output
-    for index in $(seq 0 $(($nproc-1))); do
-        echo "Out: $index/$nproc"
-        cat "$tmp_dir/out_$index.txt"
-    done
-    #Print again job with first error
+    #Print output only on failure
     if [ $error -ne 0 ]; then
+        for index in $(seq 0 $(($nproc-1))); do
+            echo "Out: $index/$nproc"
+            cat "$tmp_dir/out_$index.txt"
+        done
         echo
         echo "Parallel Out: $index_first_error/$nproc FIRST ERROR: $error"
         cat "$tmp_dir/out_$index_first_error.txt"
